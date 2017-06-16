@@ -1,2 +1,8 @@
 eclipse.preferences.version=1
+encoding//cores/__init__.py=utf-8
+encoding//cores/flask/app.py=utf-8
+encoding//cores/flask/config.py=utf-8
+encoding//cores/wsrpc/rpc.py=utf-8
+encoding//ext/ansible/__init__.py=utf-8
+encoding/<project>=UTF-8
 encoding/hlan.py=utf-8
