@@ -2,6 +2,7 @@
 from cores.flask import Flask
 from flask_sockets import Sockets
 from cores.wsrpc.rpc import rpc_ws
+from cores import logger
 app = Flask(__name__)
 app.debug=True
 sockets = Sockets(app)
