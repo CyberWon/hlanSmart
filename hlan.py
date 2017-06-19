@@ -1,33 +1,50 @@
 # -*- coding:utf-8 -*-  
-from cores.flask import Flask
+from cores.flask import Flask,request
 from flask_sockets import Sockets
 from cores.wsrpc.rpc import rpc_ws
-from cores import logger
+from cores import logger,config,getLang
+import sys,json
 app = Flask(__name__)
 app.debug=True
 sockets = Sockets(app)
 ws_list=[]
+@app.route('/app/<app_name>',methods=['GET','POST'])
+def apps(app_name):
+    try:
+        app_str='app.%s' % app_name
+        if config['debug']==True:
+            try:
+                del sys.modules[app_str]
+            except:
+                pass
+        method=__import__(app_str,fromlist=["app_main"]) 
+    except:
+        return json.dumps(dict(retfun='print',retdata=getLang(1000003)))
+    try:
+        ret=method.app_main(request)
+        return ret
+    except:
+        return json.dumps(dict(retfun='print',retdata=getLang(1000004)))
 @sockets.route('/ws')
 def echo_socket(ws):
     ws_list.append(ws)
+    ip = request.remote_addr  
+    try:
+        _ip = request.headers["X-Real-IP"]
+        if _ip is not None:
+            ip = _ip
+    except Exception as e:
+        logger.debug(e)
     try:
         while not ws.closed:
             message = ws.receive()
-#             print message
-            logger.debug(message)
+            logger.info('%s %s'%(ip,message))
             ws.send(rpc_ws(message,ws))
-#             print rpc_ws(message,ws)
     except Exception as e:
-        logger.error(e)
-        print e
+        logger.debug(e)
 @app.route('/')
 def hello():
-    return 'Hello World!'
-@app.route('/test_ws')
-def test_ws():
-    for i in ws_list:
-        i.send('test')
-    return ''
+    return 'HlanSmart v0.1!'
 if __name__ == "__main__":
     from gevent import pywsgi
     from geventwebsocket.handler import WebSocketHandler
