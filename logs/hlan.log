@@ -1,6 +1,1 @@
-Mon, 19 Jun 2017 11:18:12 handler.py[line:68] DEBUG Initializing WebSocket
-Mon, 19 Jun 2017 11:18:12 handler.py[line:100] DEBUG Validating WebSocket request
-Mon, 19 Jun 2017 11:18:12 handler.py[line:242] INFO 192.168.10.10 - - [2017-06-19 11:18:12] "GET / HTTP/1.1" 200 128 0.004467
-Mon, 19 Jun 2017 11:18:12 handler.py[line:68] DEBUG Initializing WebSocket
-Mon, 19 Jun 2017 11:18:12 handler.py[line:100] DEBUG Validating WebSocket request
-Mon, 19 Jun 2017 11:18:12 handler.py[line:242] INFO 192.168.10.10 - - [2017-06-19 11:18:12] "GET /favicon.ico HTTP/1.1" 404 342 0.017037
+Mon, 19 Jun 2017 11:45:25 hlan.py[line:17] DEBUG {"jsonrpc":"2.0","method":"test","params":"123","id":1497843925942}

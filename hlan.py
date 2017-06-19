@@ -14,9 +14,11 @@ def echo_socket(ws):
         while not ws.closed:
             message = ws.receive()
 #             print message
+            logger.debug(message)
             ws.send(rpc_ws(message,ws))
 #             print rpc_ws(message,ws)
     except Exception as e:
+        logger.error(e)
         print e
 @app.route('/')
 def hello():
