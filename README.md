@@ -1,3 +1,29 @@
+# 2017年08月08日 星期二
+又快一个月没更新了。最近忙着别的项目，这个项目一直处于搁置状态。这次更新修复了一些小bug。
+1.程序引用的装饰器变了,预留了是否开启认证的选项
+
+```python
+#以前的
+from cores.dispatcher import app_test
+@app_test
+def app_main(request):
+    pass
+#新版的
+from cores.dispatcher import hlan_app
+@hlan_app(auth=False)
+def app_main(request):
+    pass
+```
+
+2.修复了处理前端传递过来params参数，更新了模块接受处理参数
+由元组（tuple）转成字典，提高了与websocket公用模块的兼容性
+
+```python
+@MD.add_method
+def haha(*args,**kwargs):
+    return 'test,haha'
+```
+
 # 2017年7月12日 星期三
 
 隔了一个月才更新.主要在完善前端部分,前端部分暂时不考虑开源.整个项目开源的只会是底层框架部分.下个版本主要针对websocket和统一认证进行功能性补充.

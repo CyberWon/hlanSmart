@@ -4,35 +4,93 @@
 For usage examples see :meth:`Dispatcher.add_method`
 
 """
-import collections,sys,json
-from cores import config,logger
-def app_test(func):
-    def _app_test(request):
-        #将请求的参数转换成字典
-        if request.method == 'GET':
-            d=request.args.to_dict()
-        else:
-            d=request.form.to_dict()
-            #获取请求参数中的方法
-        m=d['method'].split('.')
-        try:
-            mod_str=str(request.path).replace('/', '.')[1:]+'.'+m[0]
-            #是否重新加载模块.
-            if config['debug']==True:
+import collections,sys,json,os,yaml
+from cores import config,logger,BaseDir
+from flask import abort
+with open(os.path.join(BaseDir,'conf/weixin.yml')) as f:    
+    wx_conf=yaml.load(f)
+def ent_weixin(wx_name=None):
+    def _app_weixin(func):
+        def __app_weixin(request):
+            from wechatpy.enterprise.crypto import WeChatCrypto
+            from wechatpy.exceptions import InvalidSignatureException
+            from wechatpy.enterprise.exceptions import InvalidCorpIdException
+            from wechatpy.enterprise import parse_message, create_reply
+            TOKEN=wx_conf[wx_name]['TOKEN']
+            EncodingAESKey=wx_conf[wx_name]['EncodingAESKey']
+            AppId=wx_conf[wx_name]['AppId']
+            signature = request.args.get('msg_signature', '')
+            timestamp = request.args.get('timestamp', '')
+            nonce = request.args.get('nonce', '')
+            crypto = WeChatCrypto(TOKEN, EncodingAESKey, AppId)
+            if request.method == 'GET':
+                echo_str = request.args.get('echostr', '')
                 try:
-                    del sys.modules[mod_str]
+                    echo_str = crypto.check_signature(
+                        signature,
+                        timestamp,
+                        nonce,
+                        echo_str
+                    )
+                except InvalidSignatureException:
+                    abort(403)
+                return echo_str
+            else:
+                try:
+                    msg = crypto.decrypt_message(
+                        request.data,
+                        signature,
+                        timestamp,
+                        nonce
+                    )
+                except (InvalidSignatureException, InvalidCorpIdException):
+                    abort(403)
+                msg = parse_message(msg)
+                reply = create_reply(func(msg), msg).render()
+                res = crypto.encrypt_message(reply, nonce, timestamp)
+                return res
+        return __app_weixin
+    return _app_weixin
+def hlan_app(auth=False):
+    def _hlan_app(func):
+        def __hlan_app(request):
+            #将请求的参数转换成字典
+            try:
+                if request.method == 'GET':
+                    d=request.args.to_dict()
+                else:
+                    d=request.form.to_dict()
+            except Exception as e:
+                logger.error(e)
+                
+            #获取请求参数中的方法   
+            m=d['method'].split('.')
+            mod_str=str(request.path).replace('/', '.')[1:]+'.'+m[0]
+            #如果开启认证，在这里判断是否拦截请求。
+            if auth:
+                pass
+            try:
+                #是否重新加载模块.
+                if config['debug']==True:
+                    try:
+                        del sys.modules[mod_str]
+                    except:
+                        pass
+                method=__import__(mod_str,fromlist=["MD"])
+            except Exception as e:
+                logger.error(e)
+            try:
+                res=method.MD[m[1]]
+                try:
+                    d['params']=json.loads(d.get('params'))
                 except:
                     pass
-            method=__import__(mod_str,fromlist=["MD"])
-        except Exception as e:
-            logger.error(e)
-        try:
-            res=method.MD[m[1]]
-            return json.dumps(dict(id=d.get('id'),retfun=d.get('retfun'),retdata=res(d)))
-        except Exception as e:
-            logger.error(e)
-            return json.dumps(dict(id=d.get('id'),retfun=d.get('retfun'),retdata=""))
-    return _app_test
+                return json.dumps(dict(id=d.get('id'),retfun=d.get('retfun'),retdata=res(args=d)))
+            except Exception as e:
+                logger.error(e)
+                return json.dumps(dict(id=d.get('id'),retfun=d.get('retfun'),retdata=""))
+        return __hlan_app
+    return _hlan_app
 class Dispatcher(collections.MutableMapping):
 
     """ Dictionary like object which maps method_name to method."""
