@@ -1,0 +1,24 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+<head>
+    <title>首页</title>
+</head>
+<body>
+<!-- 载入css -->
+    {% for item in css %}
+      <link rel="stylesheet" href="{{ item }}">
+    {% endfor %}
+
+<!-- 载入js -->
+     {% for item in js %}
+      <link rel="stylesheet" href="{{ item }}">
+      <script src="{{ item }}"></script>
+    {% endfor %}
+<!-- 执行js函数 -->
+ <script type="text/javascript">
+	{% for item in exec_js_fun %}
+     {{ item }};	
+    {% endfor %}
+    </script>
+</body>
+</html>
