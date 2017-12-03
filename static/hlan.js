@@ -7,9 +7,6 @@ hlan.menu = {}
 hlan.log=function(s){
 	hlan.debug && console.log(s)
 }
-
-
-
 hlan.app_send = function(retfun,app, method, params) {
 	/*
 	 
@@ -29,7 +26,7 @@ hlan.app_send = function(retfun,app, method, params) {
 	p.id = new Date().getTime();
 	try {
 		$.post('/app/'+app, p, function(data, status) {
-			msg = JSON.parse(data)
+			msg = data
 			hlan.res[msg.id] = msg.retdata
 			/*
 			 回调函数，所有的和接口交互都可以使用这个。
@@ -43,7 +40,7 @@ hlan.app_send = function(retfun,app, method, params) {
 			eval(msg.retfun + '("' + msg.id + '")')
 		});
 	} catch(err) {
-		hlan.log('-----ws_send websokect发送报错');
+		hlan.log('-----app send 发送报错');
 		hlan.log(err);
 	}
 	return ''

@@ -1,9 +1,9 @@
 # -*- coding:utf-8 -*-  
-from cores.flask import Flask,request
+from cores.flask import Flask,request,jsonify
 from flask_sockets import Sockets
 from cores.wsrpc.rpc import rpc_ws
 from cores import logger,config,getLang
-import sys,json
+import sys
 app = Flask(__name__)
 app.debug=True
 sockets = Sockets(app)
@@ -19,12 +19,12 @@ def apps(app_name):
                 pass
         method=__import__(app_str,fromlist=["app_main"]) 
     except:
-        return json.dumps(dict(retfun='print',retdata=getLang(1000003)))
+        return jsonify(dict(retfun='print',retdata=getLang(1000003)))
     try:
         ret=method.app_main(request)
         return ret
     except:
-        return json.dumps(dict(retfun='print',retdata=getLang(1000004)))
+        return jsonify(dict(retfun='print',retdata=getLang(1000004)))
 @sockets.route('/ws')
 def echo_socket(ws):
     ws_list.append(ws)

@@ -6,7 +6,7 @@ For usage examples see :meth:`Dispatcher.add_method`
 """
 import collections,sys,json,os,yaml
 from cores import config,logger,BaseDir
-from flask import abort
+from flask import abort,jsonify
 with open(os.path.join(BaseDir,'conf/weixin.yml')) as f:    
     wx_conf=yaml.load(f)
 def ent_weixin(wx_name=None):
@@ -85,10 +85,10 @@ def hlan_app(auth=False):
                     d['params']=json.loads(d.get('params'))
                 except:
                     pass
-                return json.dumps(dict(id=d.get('id'),retfun=d.get('retfun'),retdata=res(args=d)))
+                return jsonify(dict(id=d.get('id'),retfun=d.get('retfun'),retdata=res(args=d)))
             except Exception as e:
                 logger.error(e)
-                return json.dumps(dict(id=d.get('id'),retfun=d.get('retfun'),retdata=""))
+                return jsonify(dict(id=d.get('id'),retfun=d.get('retfun'),retdata=""))
         return __hlan_app
     return _hlan_app
 class Dispatcher(collections.MutableMapping):
